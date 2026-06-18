@@ -11,7 +11,8 @@
     "noEmit": true,
     "outDir": "dist",
     "rootDir": ".",
-    "types": ["node"]
+    "types": ["node"],
+    "jsx": "react-jsx"
   },
   "include": ["src", "server.ts", "app.ts", "prisma.config.ts"],
   "exclude": ["node_modules", "generated"]

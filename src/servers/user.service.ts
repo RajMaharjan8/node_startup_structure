@@ -12,7 +12,25 @@ export const getUserData = async (
     ? {
         OR: [
           {
-            name: {
+            first_name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            last_name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            phone: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            address: {
               contains: keyword,
               mode: "insensitive",
             },
