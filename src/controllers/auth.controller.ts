@@ -79,6 +79,7 @@ export const login = async (req: Request, res: Response) => {
     const payload = {
       id: user.id,
       email: user.email,
+      role: user.role,
     };
     const accessToken = createAccessToken(payload);
     const refreshToken = createRefresToken(payload);

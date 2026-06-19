@@ -27,6 +27,7 @@
     "start": "node --import tsx server.ts",
     "server": "tsx watch server.ts",
     "dev": "tsx watch server.ts",
+    "seed": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

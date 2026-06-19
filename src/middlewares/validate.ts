@@ -1,4 +1,4 @@
-import {ZodType} from "zod";
+import {ZodType, flattenError} from "zod";
 import {Request, Response, NextFunction} from "express";
 import { sendResponse } from "../helpers/api-response";
 
@@ -9,8 +9,8 @@ export const validate = (schema: ZodType)=>(
     if(!result.success){
         return sendResponse(
             res,
-            result.error.flatten().fieldErrors,
-            [],
+            "Validation failed",
+            flattenError(result.error).fieldErrors,
             422
         );
     }

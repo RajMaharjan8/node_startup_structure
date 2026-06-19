@@ -20,6 +20,31 @@ enum UserRoles {
   CUSTOMER
 }
 
+enum StockReason {
+  RESTOCK
+  PURCHASE
+  ADJUST
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  COD
+  ESEWA
+  KHALTI
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 model User{
   id Int @id @default(autoincrement())
   first_name String
@@ -33,8 +58,10 @@ model User{
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   role UserRoles @default(CUSTOMER)
-  
+
   otps Otp[]
+  cart Cart?
+  orders Order[]
 }
 
 model Otp{
@@ -70,29 +97,128 @@ model Package {
   id Int @id @default(autoincrement())
   name String
   description String?
+  price Float @default(0)
+  discount_price Float?
+  is_active Boolean @default(true)
+
+  thumbnail_id Int?
 
   items PackageItem[]
-
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Item {
   id Int @id @default(autoincrement())
   name String
   price Float
+  discount_price Float?
   description String?
-  has_stock Boolean @default(true)
-  
+  stock_qty Int @default(0)
+  is_active Boolean @default(true)
+
   thumbnail_id Int?
 
   packages PackageItem[]
+  movements StockMovement[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model PackageItem{
   package_id Int
   item_id Int
+  quantity Int @default(1)
 
   package Package @relation(fields: [package_id], references: [id], onDelete: Cascade)
   item Item @relation(fields:[item_id], references: [id], onDelete: Cascade )
 
   @@id([package_id, item_id])
+}
+
+model StockMovement {
+  id Int @id @default(autoincrement())
+  item_id Int
+  item Item @relation(fields: [item_id], references: [id], onDelete: Cascade)
+  change Int
+  reason StockReason
+  note String?
+  created_at DateTime @default(now())
+
+  @@index([item_id])
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+  user_id Int @unique
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items CartItem[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model CartItem {
+  id Int @id @default(autoincrement())
+  cart_id Int
+  cart Cart @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+
+  item_id Int?
+  package_id Int?
+  quantity Int @default(1)
+
+  @@index([cart_id])
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  user_id Int
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  status OrderStatus @default(PENDING)
+  payment_method PaymentMethod
+  subtotal Float
+  discount Float @default(0)
+  total Float
+
+  address String
+  phone String
+  note String?
+
+  items OrderItem[]
+  transactions Transaction[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id])
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  order_id Int
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  item_id Int?
+  package_id Int?
+  name String
+  price Float
+  quantity Int
+
+  @@index([order_id])
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  order_id Int
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  method PaymentMethod
+  status TransactionStatus @default(PENDING)
+  amount Float
+  reference String?
+  payload Json?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([order_id])
 }
